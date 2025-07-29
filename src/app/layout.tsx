@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
+import { UserProvider } from "@/context/UserContext";
+import { UserLoadingProvider } from "@/components/user-loading-provider";
+import { QueryProvider } from "@/context/QueryProvider";
+import { Suspense } from "react";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const interFont = Inter({
+  variable: "--next-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const poppinsFont = Poppins({
+  variable: "--next-poppins",
   subsets: ["latin"],
+  weight: ["400", "500", "100", "200", "300", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -25,9 +31,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${interFont.variable} ${poppinsFont.variable}  antialiased`}
       >
-        {children}
+        <Suspense fallback="loading">
+          <QueryProvider>
+            <UserProvider>
+              <UserLoadingProvider>
+                <Toaster richColors />
+                {children}
+              </UserLoadingProvider>
+            </UserProvider>
+          </QueryProvider>
+        </Suspense>
       </body>
     </html>
   );
