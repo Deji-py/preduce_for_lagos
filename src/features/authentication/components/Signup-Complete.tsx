@@ -325,9 +325,9 @@ function SignupSuccess() {
           ))}
         </div>
       </motion.div>
-      <Link className="mb-6" href={"/"}>
+      <Link className="mb-6" href={"/reset-password"}>
         <Button>
-          Go to Login
+          Reset Password Now
           <ArrowRight />
         </Button>
       </Link>

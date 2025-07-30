@@ -33,6 +33,46 @@ type SignUpStepProps = {
   next: () => void;
 };
 
+const states = [
+  "Abia",
+  "Adamawa",
+  "Akwa Ibom",
+  "Anambra",
+  "Bauchi",
+  "Bayelsa",
+  "Benue",
+  "Borno",
+  "Cross River",
+  "Delta",
+  "Ebonyi",
+  "Edo",
+  "Ekiti",
+  "Enugu",
+  "FCT - Abuja",
+  "Gombe",
+  "Imo",
+  "Jigawa",
+  "Kaduna",
+  "Kano",
+  "Katsina",
+  "Kebbi",
+  "Kogi",
+  "Kwara",
+  "Lagos",
+  "Nasarawa",
+  "Niger",
+  "Ogun",
+  "Ondo",
+  "Osun",
+  "Oyo",
+  "Plateau",
+  "Rivers",
+  "Sokoto",
+  "Taraba",
+  "Yobe",
+  "Zamfara",
+];
+
 export default function SignupStep3({ next }: SignUpStepProps) {
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
@@ -142,11 +182,11 @@ export default function SignupStep3({ next }: SignUpStepProps) {
                 <SelectValue placeholder="Select option" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="lagos">Lagos</SelectItem>
-                <SelectItem value="abuja">Abuja</SelectItem>
-                <SelectItem value="kano">Kano</SelectItem>
-                <SelectItem value="rivers">Rivers</SelectItem>
-                <SelectItem value="ogun">Ogun</SelectItem>
+                {states.map((state, index) => (
+                  <SelectItem value={state} key={index}>
+                    {state}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {errors.state && (

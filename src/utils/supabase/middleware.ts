@@ -39,9 +39,13 @@ export async function updateSession(request: NextRequest) {
   // Define routes
   const publicRoutes = ["/", "/signup"];
   const resetPasswordRoute = "/reset-password";
+  const onboardingRoute = "/onboarding";
+  const dashboardRoute = "/dashboard";
 
   const isPublicRoute = publicRoutes.includes(pathname);
   const isResetPasswordRoute = pathname === resetPasswordRoute;
+  const isOnboardingRoute = pathname === onboardingRoute;
+  const isDashboardRoute = pathname === dashboardRoute;
 
   // Unauthenticated users
   if (!user) {
@@ -58,7 +62,7 @@ export async function updateSession(request: NextRequest) {
   try {
     const { data: userData, error } = await supabase
       .from("users")
-      .select("password_reset")
+      .select("password_reset, category")
       .eq("id", user.id)
       .single();
 
@@ -68,6 +72,7 @@ export async function updateSession(request: NextRequest) {
     }
 
     const hasResetPassword = userData?.password_reset || false;
+    const hasCategory = userData?.category || false;
 
     // User hasn't reset password
     if (!hasResetPassword) {
@@ -82,9 +87,22 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // User has reset password
-    if (isResetPasswordRoute) {
-      // Redirect from reset password to dashboard
+    // User hasn't selected a category
+    if (!hasCategory) {
+      // Allow public routes, reset password, and onboarding routes
+      if (isPublicRoute || isResetPasswordRoute || isOnboardingRoute) {
+        return supabaseResponse;
+      }
+      // Redirect dashboard and other routes to onboarding
+      const url = request.nextUrl.clone();
+      url.pathname = "/onboarding";
+      url.searchParams.set("required", "true");
+      return NextResponse.redirect(url);
+    }
+
+    // User has reset password and selected category
+    if (isResetPasswordRoute || isOnboardingRoute) {
+      // Redirect from reset password or onboarding to dashboard
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);

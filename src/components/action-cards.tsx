@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useCallback } from "react";
 import { IconUpload, IconCheck, IconX } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
@@ -12,12 +11,17 @@ import CategoryIcon from "./category-icon";
 import { formTypes } from "@/type";
 import { useUser } from "@/context/UserContext";
 import Link from "next/link";
+import { createClient } from "@supabase/supabase-js";
+import { toast } from "sonner";
+import { queryKeys } from "@/lib/queries";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface UploadedFile {
   id: string;
   name: string;
   size: number;
   status: "uploading" | "completed" | "error";
+  file: File; // Store the actual File object for upload
 }
 
 interface SectionCardsProps {
@@ -25,7 +29,13 @@ interface SectionCardsProps {
   type: formTypes;
 }
 
-// Map form types to human-readable titles and Unsplash image URLs
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+// Form configuration (unchanged)
 const formConfig: Record<
   SectionCardsProps["type"],
   { title: string; imageUrl: string }
@@ -81,6 +91,8 @@ export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
   const { profile } = useUser();
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [uploading, setOploading] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -118,6 +130,7 @@ export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
       name: file.name,
       size: file.size,
       status: "uploading",
+      file, // Store the File object
     }));
 
     setUploadedFiles((prev) => [...prev, ...newFiles]);
@@ -150,6 +163,89 @@ export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
     );
   };
 
+  const handleDownload = async (type: string) => {
+    try {
+      const { data } = await supabase.storage
+        .from("forms")
+        .getPublicUrl(`/${type}.pdf`);
+
+      const link = document.createElement("a");
+      link.href = data.publicUrl;
+      link.download = type.split("/").pop() || "form.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Download failed:", error);
+      toast.error("Failed to download form");
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!profile?.id) {
+      toast.error("User not authenticated");
+      return;
+    }
+
+    for (const file of uploadedFiles) {
+      if (file.status !== "completed") {
+        toast.error("Please wait for all files to finish uploading");
+        return;
+      }
+
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${profile.id}/${type}.${fileExt}`;
+
+      try {
+        setOploading(true);
+        // Upload to Supabase storage
+        const { error: uploadError } = await supabase.storage
+          .from("scanned-form")
+          .upload(filePath, file.file, {
+            cacheControl: "3600",
+            upsert: true,
+          });
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from("scanned-form")
+          .getPublicUrl(filePath);
+
+        // Insert into uploaded_forms table
+        const { error: dbError } = await supabase.from("uploaded_forms").upsert(
+          {
+            user_id: profile.id,
+            url: urlData.publicUrl,
+            category: type,
+          },
+          { onConflict: "user_id" }
+        );
+
+        if (dbError) {
+          throw dbError;
+        }
+
+        toast.success(`${file.name} uploaded successfully`);
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.users.profile(profile?.id || ""),
+        });
+      } catch (error) {
+        console.error("Upload failed:", error);
+        toast.error(`Failed to upload ${file.name}`);
+        continue;
+      } finally {
+        setOploading(false);
+      }
+    }
+
+    // Clear uploaded files after successful submission
+    setUploadedFiles([]);
+  };
+
   const { title } = formConfig[type];
 
   return (
@@ -165,7 +261,7 @@ export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
                 Please Complete form details
               </p>
             </div>
-            <div className=" h-20 w-20 scale-70 flex flex-col justify-center items-center rounded-lg bg-white/10  text-white">
+            <div className=" h-20 w-20 scale-70 flex flex-col text-primary justify-center items-center rounded-lg bg-white/10  ">
               <CategoryIcon type={type as any} />
             </div>
           </div>
@@ -177,7 +273,7 @@ export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
                 className="w-full bg-white text-primary hover:bg-green-50 font-medium py-2.5 rounded-lg shadow-sm"
               >
                 {profile?.form_submitted
-                  ? "Form Already Sumitted"
+                  ? "Form Already Submitted"
                   : "Complete Form Online"}
                 <FileIcon />
               </Button>
@@ -185,7 +281,7 @@ export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
           </div>
         </CardContent>
       </Card>
-      <Card className="bg-card  col-span-3 !py-0 text-white border-0 shadow-lg rounded-xl overflow-hidden">
+      <Card className="bg-card col-span-3 !py-0 text-white border-0 shadow-lg rounded-xl overflow-hidden">
         <CardContent className="p-6 pb-0">
           <div className="flex flex-wrap items-start gap-5 justify-between">
             <div>
@@ -193,13 +289,17 @@ export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
                 Fill Form Offline?
               </h2>
               <p className="text-gray-500 text-xs md:text-xs lg:text-sm mt-2">
-                download the form below, fill it and upload it scanned
+                Download the form below, fill it and upload it scanned
               </p>
             </div>
           </div>
         </CardContent>
         <CardFooter>
-          <Button disabled={profile?.form_submitted} className="w-full">
+          <Button
+            disabled={profile?.form_submitted || !type}
+            onClick={() => handleDownload(type)}
+            className="w-full"
+          >
             Download Form <CloudDownload />
           </Button>
         </CardFooter>
@@ -217,9 +317,8 @@ export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        {/* Uploaded Files List */}
         {uploadedFiles.length > 0 ? (
-          <div className=" flex flex-wrap gap-5 items-center">
+          <div className="flex flex-wrap gap-5 items-center">
             <div>
               {uploadedFiles.map((file) => (
                 <div
@@ -265,8 +364,12 @@ export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
                 </div>
               ))}
             </div>
-            <Button className=" bg-[#8ec645a1] hover:text-white text-primary">
-              Submit Form
+            <Button
+              onClick={handleSubmit}
+              className="bg-[#8ec645a1] hover:text-white text-primary"
+              disabled={profile?.form_submitted || uploadedFiles.length === 0}
+            >
+              {uploading ? "Uploading" : "Submit Form"}
             </Button>
           </div>
         ) : (
@@ -288,7 +391,7 @@ export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
               <div>
                 <p className="text-sm font-medium text-gray-700 mb-1">
                   {profile?.form_submitted
-                    ? "Form Already Sumitted Online"
+                    ? "Form Already Submitted Online"
                     : "Upload the Scanned Form here"}
                 </p>
                 {!profile?.form_submitted && (
