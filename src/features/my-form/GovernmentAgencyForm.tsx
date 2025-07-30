@@ -18,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react"; // Import Loader2 icon
 import { useSubmitGovernmentAgencyForm } from "@/hooks/useSubmitGovernmentAgencyForm";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Define the Zod schema for form validation
 const governmentAgenciesSchema = z.object({
@@ -65,7 +66,7 @@ export { governmentAgenciesSchema, type GovernmentAgenciesFormData };
 
 export default function GovernmentAgenciesForm() {
   const submitGovernmentAgencyForm = useSubmitGovernmentAgencyForm(); // Initialize the new hook
-
+  const queryClient = useQueryClient();
   // Initialize React Hook Form with Zod resolver
   const form = useForm<GovernmentAgenciesFormData>({
     resolver: zodResolver(governmentAgenciesSchema),
@@ -97,6 +98,7 @@ export default function GovernmentAgenciesForm() {
     try {
       await submitGovernmentAgencyForm.mutateAsync(data);
       form.reset();
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
     } catch (error) {
       // Error is already handled in the mutation
     }

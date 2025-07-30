@@ -88,7 +88,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <Link href={"/account"}>
+              <Link href={"/dashboard/account"}>
                 <DropdownMenuItem>
                   <IconUserCircle />
                   Account

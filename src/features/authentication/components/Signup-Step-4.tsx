@@ -18,8 +18,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Building2, Briefcase } from "lucide-react";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { sendPasswordResetLink, updateUserProfile } from "../api/auth";
+import {
+  sendMagicLink,
+  sendPasswordResetLink,
+  updateUserProfile,
+} from "../api/auth";
 import { toast } from "sonner";
+import { supabaseClient } from "@/utils/supabase/client";
 
 const companyInfoSchema = z.object({
   companyName: z.string().min(2, "Company name must be at least 2 characters"),
@@ -86,8 +91,31 @@ export default function SignupStep4({ next }: SignUpStepProps) {
         business_description: data.businessDescription,
       });
 
-      // Send password reset link
-      await sendPasswordResetLink(email);
+      // Check user's password_reset status and category
+      const { data: userData, error } = await supabaseClient
+        .from("users")
+        .select("password_reset, category")
+        .eq("id", userId)
+        .single();
+
+      if (error) {
+        throw new Error("Failed to fetch user data");
+      }
+
+      // If password_reset is false, send password reset OTP
+      if (!userData?.password_reset) {
+        await sendMagicLink(email);
+      }
+      // If user doesn't have a category, redirect to onboarding
+      else if (!userData?.category) {
+        router.push("/onboarding");
+        return;
+      }
+      // If password_reset is true and category exists, go to dashboard
+      else {
+        router.push("/dashboard");
+        return;
+      }
 
       // Mark as complete in search params
       updateUrlParams({

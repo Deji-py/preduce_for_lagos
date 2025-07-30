@@ -19,6 +19,7 @@ import { Card } from "@/components/ui/card";
 
 import { Loader2 } from "lucide-react";
 import { useSubmitBulkTraderForm } from "@/hooks/useBulkTraderForm";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Define the Zod schema for form validation
 const bulkTradersSchema = z.object({
@@ -77,6 +78,7 @@ export { bulkTradersSchema, type BulkTradersFormData };
 
 export default function BulkTradersForm() {
   const submitBulkTraderForm = useSubmitBulkTraderForm();
+  const queryClient = useQueryClient();
 
   // Initialize React Hook Form with Zod resolver
   const form = useForm<BulkTradersFormData>({
@@ -112,6 +114,7 @@ export default function BulkTradersForm() {
     try {
       await submitBulkTraderForm.mutateAsync(data);
       form.reset();
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
     } catch (error) {
       // Error is already handled in the mutation
     }

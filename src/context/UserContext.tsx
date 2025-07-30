@@ -85,7 +85,7 @@ export function UserProvider({ children }: UserProviderProps) {
     error: profileError,
     refetch: refetchProfile,
   } = useQuery({
-    queryKey: queryKeys.users.profile(user?.id || ""),
+    queryKey: ["user-profile"],
     queryFn: () => queryFunctions.getUserProfile(user?.id || ""),
     enabled: !!user?.id,
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -96,10 +96,7 @@ export function UserProvider({ children }: UserProviderProps) {
     mutationFn: mutationFunctions.updateUserProfile,
     onSuccess: (updatedProfile) => {
       // Update the profile cache
-      queryClient.setQueryData(
-        queryKeys.users.profile(user?.id || ""),
-        updatedProfile
-      );
+      queryClient.setQueryData(["user-profile"], updatedProfile);
       toast.success("Profile updated successfully!");
     },
     onError: (error: any) => {

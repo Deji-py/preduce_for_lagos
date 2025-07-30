@@ -18,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react"; // Import Loader2 icon
 import { useSubmitTransportCompanyForm } from "@/hooks/useSubmitTransportCompanyForm";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Define the Zod schema for form validation
 const transportCompanySchema = z.object({
@@ -61,7 +62,7 @@ export { transportCompanySchema, type TransportCompanyFormData };
 
 export default function TransportCompanyForm() {
   const submitTransportCompanyForm = useSubmitTransportCompanyForm(); // Initialize the new hook
-
+  const queryClient = useQueryClient();
   // Initialize React Hook Form with Zod resolver
   const form = useForm<TransportCompanyFormData>({
     resolver: zodResolver(transportCompanySchema),
@@ -85,6 +86,7 @@ export default function TransportCompanyForm() {
     try {
       await submitTransportCompanyForm.mutateAsync(data);
       form.reset();
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
     } catch (error) {
       // Error is already handled in the mutation
     }

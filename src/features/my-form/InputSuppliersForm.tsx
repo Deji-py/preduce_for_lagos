@@ -17,6 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react"; // Import Loader2 icon
 import { useSubmitInputSupplierForm } from "@/hooks/useSubmitInputSupplierForm";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
 // Updated import path
 
 // Define the Zod schema for form validation
@@ -45,7 +46,7 @@ export { inputSupplierSchema, type InputSupplierFormData };
 
 export default function InputSupplierForm() {
   const submitInputSupplierForm = useSubmitInputSupplierForm(); // Initialize the new hook
-
+  const queryClient = useQueryClient();
   // Initialize React Hook Form with Zod resolver
   const form = useForm<InputSupplierFormData>({
     resolver: zodResolver(inputSupplierSchema),
@@ -67,6 +68,7 @@ export default function InputSupplierForm() {
     try {
       await submitInputSupplierForm.mutateAsync(data);
       form.reset();
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
     } catch (error) {
       // Error is already handled in the mutation
     }

@@ -510,7 +510,7 @@ export default function OnboardingScreen() {
       // Redirect to dashboard
       router.push("/dashboard");
       queryClient.invalidateQueries({
-        queryKey: queryKeys.users.profile(user?.id || ""),
+        queryKey: ["user-profile"],
       });
     } catch (error: any) {
       toast("Error", {

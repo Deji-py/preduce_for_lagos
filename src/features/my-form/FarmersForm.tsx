@@ -18,6 +18,7 @@ import { Card } from "@/components/ui/card";
 
 import { Loader2 } from "lucide-react";
 import { useSubmitFarmerForm } from "@/hooks/useFarmerForm";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Define the Zod schema for form validation
 const farmersSchema = z.object({
@@ -48,6 +49,7 @@ export { farmersSchema, type FarmersFormData };
 
 export default function FarmersForm() {
   const submitFarmerForm = useSubmitFarmerForm();
+  const queryClient = useQueryClient();
 
   // Initialize React Hook Form with Zod resolver
   const form = useForm<FarmersFormData>({
@@ -73,6 +75,7 @@ export default function FarmersForm() {
     try {
       await submitFarmerForm.mutateAsync(data);
       form.reset();
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
     } catch (error) {
       // Error is already handled in the mutation
     }

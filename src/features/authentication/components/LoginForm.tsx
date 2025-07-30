@@ -112,13 +112,7 @@ function LoginForm() {
   const handleForgotPassword = async (data: ForgotPasswordFormData) => {
     setIsLoading(true);
     try {
-      const { exists } = await checkUserExists(data.email);
-      if (!exists) {
-        toast.error("User Not Found", {
-          description: "No account found with this email address.",
-        });
-        return;
-      }
+      await sendPasswordResetOTP(data.email);
       setEmail(data.email);
       setCurrentStep("forgot-password-sent");
       setCountdown(60); // Reset countdown for the next OTP screen
@@ -376,7 +370,7 @@ function LoginForm() {
           Check Your Email
         </h1>
         <p className="text-xs lg:text-sm mt-2 opacity-70">
-          We've sent a verification code to
+          If an account exists, we’ve sent a password reset link.
         </p>
         <p className="text-sm font-medium mt-1">{email}</p>
       </div>

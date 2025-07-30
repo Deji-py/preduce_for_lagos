@@ -62,9 +62,7 @@ export default function PasswordSettings() {
 
   return (
     <div className="container mx-auto p-4 max-w-7xl">
-      <h1 className="text-2xl text-center font-bold font-poppins mb-6">
-        Password Settings
-      </h1>
+      <h1 className="text-2xl text-center font-bold font-poppins mb-6"></h1>
       <Card className="border-0 shadow-lg rounded-xl max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle>Change Password</CardTitle>

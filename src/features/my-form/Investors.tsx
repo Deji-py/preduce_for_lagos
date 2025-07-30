@@ -18,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react"; // Import Loader2 icon
 import { useSubmitInvestorForm } from "@/hooks/useSubmitInvestorForm";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Define the Zod schema for form validation
 const investorsSchema = z.object({
@@ -56,7 +57,7 @@ export { investorsSchema, type InvestorsFormData };
 
 export default function InvestorsForm() {
   const submitInvestorForm = useSubmitInvestorForm(); // Initialize the new hook
-
+  const queryClient = useQueryClient();
   // Initialize React Hook Form with Zod resolver
   const form = useForm<InvestorsFormData>({
     resolver: zodResolver(investorsSchema),
@@ -80,6 +81,7 @@ export default function InvestorsForm() {
     try {
       await submitInvestorForm.mutateAsync(data);
       form.reset();
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
     } catch (error) {
       // Error is already handled in the mutation
     }

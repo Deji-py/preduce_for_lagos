@@ -160,6 +160,7 @@ export default function SignupStep3({ next }: SignUpStepProps) {
           <div className="space-y-2 flex flex-col">
             <Label className="!text-sm">Phone *</Label>
             <Input
+              type="number"
               {...register("phone")}
               leftIcon={<Phone className="w-4 h-4" />}
               placeholder="Phone Number"

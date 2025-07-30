@@ -18,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useSubmitAggregatorForm } from "@/hooks/useSubmitAggregatorForm";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Define the Zod schema for form validation
 const aggregatorsSchema = z.object({
@@ -55,7 +56,7 @@ export { aggregatorsSchema, type AggregatorsFormData };
 
 export default function AggregatorsForm() {
   const submitAggregatorForm = useSubmitAggregatorForm(); // Initialize the new hook
-
+  const queryClient = useQueryClient();
   // Initialize React Hook Form with Zod resolver
   const form = useForm<AggregatorsFormData>({
     resolver: zodResolver(aggregatorsSchema),
@@ -79,6 +80,7 @@ export default function AggregatorsForm() {
     try {
       await submitAggregatorForm.mutateAsync(data);
       form.reset();
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
     } catch (error) {
       // Error is already handled in the mutation
     }

@@ -6,7 +6,7 @@ import { formTypes } from "@/type";
 import { Loader2 } from "lucide-react";
 
 function MyForm() {
-  const { profile, isProfileLoading } = useUser();
+  const { profile, isProfileLoading, isLoading } = useUser();
 
   if (isProfileLoading) {
     return (
@@ -19,14 +19,11 @@ function MyForm() {
     );
   }
 
-  if (!profile?.category) {
+  if (!profile?.category && !isLoading) {
     return (
-      <div className="flex flex-col w-full justify-center items-center gap-4 p-4 md:gap-6 md:p-10">
+      <div className="flex flex-col h-full w-full justify-center items-center gap-4 p-4 md:gap-6 md:p-10">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Category Not Selected
-          </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm">
             Please complete your onboarding to access the form.
           </p>
         </div>
@@ -38,8 +35,8 @@ function MyForm() {
     <div className="flex flex-col w-full justify-center items-center gap-4 p-4 md:gap-6 md:p-10">
       <div className="w-full max-w-2xl">
         <FormRenderer
-          type={profile.category as formTypes}
-          isSubmitted={profile.form_submitted || false}
+          type={profile?.category as formTypes}
+          isSubmitted={profile?.form_submitted || false}
         />
       </div>
     </div>

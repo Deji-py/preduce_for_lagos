@@ -18,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react"; // Import Loader2 icon
 import { useSubmitNGOForm } from "@/hooks/useSubmitNGOForm";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Define the Zod schema for form validation
 const ngoSchema = z.object({
@@ -118,7 +119,7 @@ export { ngoSchema, type NGOFormData };
 
 export default function NGOsForm() {
   const submitNGOForm = useSubmitNGOForm(); // Initialize the new hook
-
+  const queryClient = useQueryClient();
   // Initialize React Hook Form with Zod resolver
   const form = useForm<NGOFormData>({
     resolver: zodResolver(ngoSchema),
@@ -154,6 +155,7 @@ export default function NGOsForm() {
     try {
       await submitNGOForm.mutateAsync(data);
       form.reset();
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
     } catch (error) {
       // Error is already handled in the mutation
     }

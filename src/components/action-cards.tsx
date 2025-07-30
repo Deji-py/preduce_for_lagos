@@ -88,7 +88,7 @@ const formConfig: Record<
 };
 
 export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
-  const { profile } = useUser();
+  const { profile, updateProfile } = useUser();
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploading, setOploading] = useState(false);
@@ -165,19 +165,28 @@ export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
 
   const handleDownload = async (type: string) => {
     try {
-      const { data } = await supabase.storage
-        .from("forms")
-        .getPublicUrl(`/${type}.pdf`);
+      // Build the path; avoid leading slash in Supabase storage paths
+      const path = `${type}.pdf`;
 
-      const link = document.createElement("a");
-      link.href = data.publicUrl;
-      link.download = type.split("/").pop() || "form.pdf";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const { data } = supabase.storage.from("forms").getPublicUrl(path);
+
+      const url = data.publicUrl;
+
+      // Open in a new tab/window
+      const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+      if (!newWindow) {
+        // Popup blocked? Fallback to an <a> element
+        const link = document.createElement("a");
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     } catch (error) {
-      console.error("Download failed:", error);
-      toast.error("Failed to download form");
+      console.error("Open failed:", error);
+      toast.error("Failed to open form");
     }
   };
 
@@ -225,14 +234,16 @@ export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
           { onConflict: "user_id" }
         );
 
+        await updateProfile({
+          form_submitted: true,
+        });
+
         if (dbError) {
           throw dbError;
         }
 
         toast.success(`${file.name} uploaded successfully`);
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.users.profile(profile?.id || ""),
-        });
+        queryClient.invalidateQueries({ queryKey: ["user-profile"] });
       } catch (error) {
         console.error("Upload failed:", error);
         toast.error(`Failed to upload ${file.name}`);

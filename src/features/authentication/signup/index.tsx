@@ -193,7 +193,7 @@ function Signup() {
                   size="sm"
                   className="bg-[#F7F7F7] !text-xs rounded-full text-gray-500"
                   onClick={prevStep}
-                  disabled={currentStep <= 1}
+                  disabled={currentStep <= 3}
                 >
                   <ArrowLeft /> Back
                 </Button>

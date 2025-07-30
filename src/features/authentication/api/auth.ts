@@ -65,6 +65,16 @@ export async function sendPasswordResetLink(email: string) {
   return { success: true };
 }
 
+export async function sendMagicLink(email: string) {
+  const { error } = await supabaseClient.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: `${window.location.origin}/dashboard`,
+    },
+  });
+  if (error) throw error;
+  return { success: true };
+}
 export async function resetPassword(newPassword: string) {
   const { error } = await supabaseClient.auth.updateUser({
     password: newPassword,
@@ -110,7 +120,7 @@ export async function signInWithEmail(email: string, password: string) {
 
 export async function sendPasswordResetOTP(email: string): Promise<void> {
   const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/auth/update-password`, // Ensure this matches your actual password update page
+    redirectTo: `${window.location.origin}/reset-password`, // Ensure this matches your actual password update page
   });
 
   if (error) {
@@ -172,9 +182,11 @@ export async function checkUserExists(email: string) {
   // This is a workaround since Supabase doesn't have a direct way to check if user exists
   // We'll try to send a password reset and catch the error
   try {
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+
+    if (error) {
+      return error;
+    }
 
     // If no error, user exists
     return { exists: true };

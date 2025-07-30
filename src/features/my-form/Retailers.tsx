@@ -18,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react"; // Import Loader2 icon
 import { useSubmitRetailerForm } from "@/hooks/useSubmitRetailerForm";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Define the Zod schema for form validation
 const retailersSchema = z.object({
@@ -63,7 +64,7 @@ export { retailersSchema, type RetailersFormData };
 
 export default function RetailersForm() {
   const submitRetailerForm = useSubmitRetailerForm(); // Initialize the new hook
-
+  const queryClient = useQueryClient();
   // Initialize React Hook Form with Zod resolver
   const form = useForm<RetailersFormData>({
     resolver: zodResolver(retailersSchema),
@@ -95,6 +96,7 @@ export default function RetailersForm() {
     try {
       await submitRetailerForm.mutateAsync(data);
       form.reset();
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
     } catch (error) {
       // Error is already handled in the mutation
     }
