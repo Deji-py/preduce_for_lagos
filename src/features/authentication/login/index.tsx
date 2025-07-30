@@ -7,6 +7,7 @@ import stock3 from "@/../public/png/stock3.png";
 import stock4 from "@/../public/png/stock4.png";
 import Image from "next/image";
 import { motion } from "framer-motion"; // Import motion from framer-motion
+import Link from "next/link";
 
 function LoginScreen() {
   // Variants for the container to stagger children
@@ -52,13 +53,15 @@ function LoginScreen() {
           <div className="w-24 mb-8">
             {" "}
             {/* Center logo on mobile */}
-            <Image
-              src={logo || "/placeholder.svg"}
-              alt="stepperImg"
-              className="w-full"
-              width={96}
-              height={96}
-            />
+            <Link href={"/"}>
+              <Image
+                src={logo || "/placeholder.svg"}
+                alt="stepperImg"
+                className="w-full"
+                width={96}
+                height={96}
+              />
+            </Link>
           </div>
           <motion.div
             className="w-full h-[200px] md:hidden rounded-[10px] bg-card overflow-hidden"

@@ -13,6 +13,7 @@ import { updateUserCategory } from "@/features/authentication/api/auth";
 import { formTypes } from "@/type";
 import { queryKeys } from "@/lib/queries";
 import { useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 
 interface Category {
   id: formTypes;
@@ -473,7 +474,7 @@ interface Category {
 }
 
 export default function OnboardingScreen() {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
   const [selectedCategory, setSelectedCategory] = useState<formTypes | null>(
     null
   );
@@ -512,6 +513,8 @@ export default function OnboardingScreen() {
       queryClient.invalidateQueries({
         queryKey: ["user-profile"],
       });
+
+      window.location.reload();
     } catch (error: any) {
       toast("Error", {
         description:
@@ -528,15 +531,17 @@ export default function OnboardingScreen() {
         {/* Left Section */}
         <div className="lg:w-1/2 flex flex-col">
           {/* Logo - Mobile */}
-          <div className="w-24 lg:hidden block mb-8">
-            <Image
-              src={logo || "/placeholder.svg"}
-              alt="stepperImg"
-              className="w-full"
-              width={96}
-              height={96}
-            />
-          </div>
+          <Link href={"/"}>
+            <div className="w-24 lg:hidden block mb-8">
+              <Image
+                src={logo || "/placeholder.svg"}
+                alt="stepperImg"
+                className="w-full"
+                width={96}
+                height={96}
+              />
+            </div>
+          </Link>
 
           {/* Welcome Content */}
           <div className="flex-1 flex flex-col justify-center">
@@ -611,15 +616,17 @@ export default function OnboardingScreen() {
         <div className="lg:w-1/2 pb-10  flex flex-col">
           {/* Logo - Desktop */}
           <div className="hidden lg:flex justify-end mb-8">
-            <div className="w-24 mx-auto md:mx-0 mb-8">
-              <Image
-                src={logo || "/placeholder.svg"}
-                alt="stepperImg"
-                className="w-full"
-                width={96}
-                height={96}
-              />
-            </div>
+            <Link href={"/"}>
+              <div className="w-24 mx-auto md:mx-0 mb-8">
+                <Image
+                  src={logo || "/placeholder.svg"}
+                  alt="stepperImg"
+                  className="w-full"
+                  width={96}
+                  height={96}
+                />
+              </div>
+            </Link>
           </div>
 
           {/* Category Selection */}

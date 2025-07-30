@@ -8,6 +8,8 @@ import React from "react";
 import moment from "moment";
 import { formTypes } from "@/type";
 import GoogleMap from "@/components/googlemap";
+import BeautifulGridLayout from "@/components/beautiful-grid-layout";
+import GalleryGrid from "@/components/beautiful-grid-layout";
 
 function Dashboard() {
   const router = useRouter();
@@ -39,7 +41,8 @@ function Dashboard() {
       {profile?.category && (
         <ActionCards type={profile?.category as formTypes} />
       )}
-      <GoogleMap apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY} />
+      <GalleryGrid />
+      {/* <GoogleMap apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY} /> */}
       {/* Add a beautiful google map of lagos with tgoogle map with information about the lagos ste lovernment Produce for Lagos Progrem */}
     </div>
   );

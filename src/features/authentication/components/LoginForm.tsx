@@ -370,7 +370,7 @@ function LoginForm() {
           Check Your Email
         </h1>
         <p className="text-xs lg:text-sm mt-2 opacity-70">
-          If an account exists, we’ve sent a password reset link.
+          If an account exists, we’ve sent an OTP to your email.
         </p>
         <p className="text-sm font-medium mt-1">{email}</p>
       </div>

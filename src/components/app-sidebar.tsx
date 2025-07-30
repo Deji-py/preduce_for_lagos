@@ -100,16 +100,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center justify-between">
             {open && (
-              <div className="w-24 pt-4 h-auto mb-4">
-                {/* Center logo on mobile */}
-                <Image
-                  src={logo || "/placeholder.svg"}
-                  alt="stepperImg"
-                  className="w-full"
-                  width={96}
-                  height={96}
-                />
-              </div>
+              <Link href={"/dashboard"}>
+                <div className="w-24 pt-4 h-auto mb-4">
+                  {/* Center logo on mobile */}
+                  <Image
+                    src={logo || "/placeholder.svg"}
+                    alt="stepperImg"
+                    className="w-full"
+                    width={96}
+                    height={96}
+                  />
+                </div>
+              </Link>
             )}
             <SidebarMenuButton
               asChild

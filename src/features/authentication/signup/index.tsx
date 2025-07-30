@@ -16,6 +16,7 @@ import SignupStep2 from "../components/Signup-Step-2";
 import SignupStep3 from "../components/Signup-Step-3";
 import SignupStep4 from "../components/Signup-Step-4";
 import { supabaseClient } from "@/utils/supabase/client";
+import Link from "next/link";
 
 const SignupSteps: Step[] = [
   {
@@ -147,11 +148,13 @@ function Signup() {
           <div className="p-10">
             <div className="w-full pl-6 lg:mb-20">
               <div className="w-24 absolute lg:relative right-5 h-auto">
-                <Image
-                  src={logo || "/placeholder.svg"}
-                  alt="stepperImg"
-                  className="w-full"
-                />
+                <Link href={"/"}>
+                  <Image
+                    src={logo || "/placeholder.svg"}
+                    alt="stepperImg"
+                    className="w-full"
+                  />
+                </Link>
               </div>
             </div>
             <SignupStepper steps={SignupSteps} currentStep={currentStep} />

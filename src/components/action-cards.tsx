@@ -15,6 +15,7 @@ import { createClient } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { queryKeys } from "@/lib/queries";
 import { useQueryClient } from "@tanstack/react-query";
+import Image from "next/image";
 
 interface UploadedFile {
   id: string;
@@ -261,18 +262,24 @@ export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
 
   return (
     <div className="grid grid-cols-1 w-full max-w-7xl gap-6 lg:grid-cols-12">
-      <Card className="bg-[hsl(86,53%,80%)] pt-0 relative col-span-4 text-primary border-0 shadow-lg rounded-xl overflow-hidden">
+      <Card className="bg-black pt-0 relative col-span-4 text-white border-0 shadow-lg rounded-xl overflow-hidden">
+        <div className="absolute z-10 top-0 left-0 w-full h-full bg-gradient-to-b from-primary/50 to-transparent"></div>
+        <Image
+          src={
+            "https://produceforlagos.com/wp-content/uploads/2025/06/image10.0eeee3f7c4ed1101a82a.png"
+          }
+          alt={"ng-img"}
+          width={400}
+          height={200}
+          className="w-full absolute opacity-40 h-full object-cover hover:scale-105 transition-transform duration-300"
+        />
         <CardContent className="p-6 pt-0 relative z-10 pb-0">
           <div className="flex items-center mt-3 justify-between mb-6">
             <div>
-              <h2 className="text-xl font-semibold text-primary mb-1">
-                {title}
-              </h2>
-              <p className="text-primary text-sm">
-                Please Complete form details
-              </p>
+              <h2 className="text-xl font-semibold text-white mb-1">{title}</h2>
+              <p className="text-white text-sm">Please Complete form details</p>
             </div>
-            <div className=" h-20 w-20 scale-70 flex flex-col text-primary justify-center items-center rounded-lg bg-white/10  ">
+            <div className=" h-20 w-20 scale-70 flex flex-col text-white justify-center items-center rounded-lg bg-white/10  ">
               <CategoryIcon type={type as any} />
             </div>
           </div>
@@ -377,7 +384,7 @@ export default function ActionCards({ onFileUpload, type }: SectionCardsProps) {
             </div>
             <Button
               onClick={handleSubmit}
-              className="bg-[#8ec645a1] hover:text-white text-primary"
+              className="bg-[#8ec645a1] hover:text-white text-white"
               disabled={profile?.form_submitted || uploadedFiles.length === 0}
             >
               {uploading ? "Uploading" : "Submit Form"}
